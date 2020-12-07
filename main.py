@@ -8,24 +8,11 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 def index(request: Request):
-    stock_filter = request.query_params.get('filter', False)
     connection = sqlite3.connect('app.db')
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
-
-    if stock_filter == 'new_closing_highs':
-        cursor.execute(
-            """
-                select * from (
-                    select symbol, name, stock_id, max(close), date
-                    from stock_price join stock on stock_id = stock_price.stock_id
-                    group by stock_id
-                    order by symbol
-                ) where date = ?
-            """, (date.today().isoformat(),)
-        )
-    else:
-         cursor.execute("""
+    
+    cursor.execute("""
         SELECT id, symbol, name FROM stock ORDER BY symbol
     """)
 
